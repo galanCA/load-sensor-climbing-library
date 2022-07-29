@@ -40,7 +40,18 @@ class LongEndurance:
     def get_integral(self):
         return sum(self.handData.groupby(self.handData.Data).apply(lambda g: integrate.trapz(g.Data, x=g.index)))
 
+    def get_critical_force(self):
+        # Critical force is the force at which in theory you could go forever
+        # Last 6 contracions in a 4 min test
+        # One standard diviation cut-off was used
+        pass
+
     def get_aerobic_capacity(self):
+        # Get the integral
+        # find the line
+        pass
+
+    def get_anaerobic_capacity(self):
         pass
 
     def plot(self):

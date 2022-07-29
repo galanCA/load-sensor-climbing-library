@@ -5,6 +5,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_theme(style="darkgrid")
 
+### TODO:
+# get_critical_force
+# get anaerobic capacity
+# Add line to plot
+
 class LongEndurance:
     def __init__(self, filename) -> None:
         self.handData = pd.read_table(filename,sep='\t')
@@ -17,9 +22,14 @@ class LongEndurance:
         self.handData = self.handData[ self.handData.index >= 0 ]
 
         # Delete data after the test
+        # Get all data that is not 0
+        # lastData finds the last non-zero value in the test
         lastData = self.handData[self.handData['Data'] != 0 ].iloc[::-1].index[0]
-        # todo: figure out how to add one more index
-        self.handData = self.handData.loc[:lastData]
+
+        # last data index adds an index to the last non-zero value in the test
+        lastDataIndex = self.handData.index.get_loc(lastData) + 2
+
+        self.handData = self.handData.iloc[:lastDataIndex]
 
     def get_data(self):
         return self.handData['Data']

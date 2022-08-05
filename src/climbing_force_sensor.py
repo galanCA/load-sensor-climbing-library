@@ -58,7 +58,7 @@ class LongEndurance:
         stdLCF = np.std(lcForce)
         meanLCF = np.mean(lcForce)
         # Critical force
-        self.CF = meanLCF+stdLCF
+        self.CF = meanLCF#+stdLCF
 
         if not BW is None:
             self.CF_BW = self.CF / BW * 100

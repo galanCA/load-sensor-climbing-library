@@ -7,9 +7,7 @@ import seaborn as sns
 sns.set_theme(style="darkgrid")
 
 ### TODO:
-# get_critical_force
-# get anaerobic capacity
-# Add line to plot
+
 
 class LongEndurance:
     def __init__(self, filename) -> None:
@@ -60,6 +58,10 @@ class LongEndurance:
         # Critical force
         self.CF = meanLCF#+stdLCF
 
+        # Add a cut off of 1 standard deviation
+        stdCutOff = meanLCF-stdLCF
+        self.CF = np.mean(lcForce[lcForce >= stdCutOff])
+
         if not BW is None:
             self.CF_BW = self.CF / BW * 100
             return self.CF, self.CF_BW
@@ -72,21 +74,37 @@ class LongEndurance:
         pass
 
     def get_anaerobic_capacity(self, BW=None):
-
-        #closestIndex = np.abs(self.handData.index - 60).argmin()
-        #PEContractionData = self.handData.iloc[closestIndex]
-        full_impulse = integrate.trapz(self.handData['Data'], x=self.handData.index)
         # Get critical force
-        if not 'self.CF' in locals():
+        if 'self.CF' in locals(): # Test this
             self.get_critical_force()
+        
+        # Using full
+        fullData = False
+        if fullData:
+            full_impulse = integrate.trapz(self.handData['Data'], x=self.handData.index)
 
-        critical_force = self.handData.copy()
-        nonZeroCF = critical_force['Data'] != 0
-        critical_force[nonZeroCF] = self.CF
+            critical_force = self.handData.copy()
+            nonZeroCF = critical_force['Data'] != 0
+            critical_force[nonZeroCF] = self.CF
 
-        # Integrate critical force
-        critical_impulse = integrate.trapz(critical_force['Data'], x=critical_force.index)
-        self.anaerobic_capacity = full_impulse - critical_impulse
+            # Integrate critical force
+            full_critical_impulse = integrate.trapz(critical_force['Data'], x=critical_force.index)
+            self.anaerobic_capacity = full_impulse - full_critical_impulse
+        else:
+            # Using part of the data
+            closestIndex = np.abs(self.handData.index - 120.1).argmin()
+            PEContractionData = self.handData.iloc[:closestIndex]
+            PE_impulse = integrate.trapz(PEContractionData['Data'], x=PEContractionData.index)
+
+            # Make critical force on all non-zero data points
+            critical_force = PEContractionData.copy()
+            nonZeroCF = critical_force['Data'] != 0
+            critical_force[nonZeroCF] = self.CF
+            
+            # # Integrate critical force
+            PE_critical_impulse = integrate.trapz(critical_force['Data'], x=critical_force.index)
+            self.anaerobic_capacity = PE_impulse - PE_critical_impulse
+
         if not BW is None:
             self.anaerobic_capacity_BW = self.anaerobic_capacity / BW
             return self.anaerobic_capacity, self.anaerobic_capacity_BW

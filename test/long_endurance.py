@@ -1,5 +1,4 @@
 import sys
-from turtle import right
 sys.path.insert(0,'../src')
 import climbing_force_sensor
 

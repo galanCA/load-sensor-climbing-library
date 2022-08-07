@@ -1,13 +1,9 @@
-from cgitb import handler
 import numpy as np
 import pandas as pd
 from scipy import integrate
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_theme(style="darkgrid")
-
-### TODO:
-
 
 class LongEndurance:
     def __init__(self, filename) -> None:

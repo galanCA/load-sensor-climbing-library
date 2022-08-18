@@ -6,7 +6,8 @@ import seaborn as sns
 sns.set_theme(style="darkgrid")
 
 class LongEndurance:
-    def __init__(self, filename) -> None:
+    def __init__(self, filename, BW=None) -> None:
+        self.set_body_weight(BW)
         self.handData = pd.read_table(filename,sep='\t')
         self.handData = self.handData.set_index('Time')
 
@@ -31,16 +32,36 @@ class LongEndurance:
     def get_data(self):
         return self.handData['Data']
 
-    def get_max(self, BW=None):
+    def set_body_weight(self, BW):
+        if BW is not None:
+            self.BW = BW
 
+    def get_max(self, BW=None):
+        # Get the maximum force generated
+        self.set_body_weight(BW)
         self.max_force = max(self.handData['Data'])
-        if not BW is None:
-            self.max_force_BW = self.max_force / BW * 100
+
+        if self.BW is not None:
+            self.max_force_BW = self.max_force / self.BW * 100
             return self.max_force, self.max_force_BW
 
         return self.max_force 
 
-    #def get_
+    def dynamic_strength_index(self, BW=None):
+        # It's the percentage of force that the user can generate
+        # in 200ms
+        rateOfDevelopment = 0.2 # ms
+        self.set_body_weight(BW)
+        closestIndex = np.abs(self.handData.index - rateOfDevelopment).argmin()
+        if self.handData.index[closestIndex] < rateOfDevelopment:
+            closestIndex += 1 # get the next index
+
+        dynamicData = self.handData.iloc[:closestIndex]
+        if hasattr(self, 'BW'):
+            self.DSI = max(dynamicData['Data']) / self.BW
+        else:
+            raise Exception("Needs to set body weight!\n \tEither add weight in kg as an input or\n \tcall set_body_weight() method.")
+
     def get_critical_force(self, BW = None):
         # Critical force is the force at which in theory you could go forever
         # Last 6 contracions in a 4 min test

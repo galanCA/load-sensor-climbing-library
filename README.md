@@ -5,7 +5,12 @@ The library is the design to post process data from a load cell and output signi
 ## Index
 
 - [Test]()
-    - [Endurance test]()
+    - [General body strenght]()
+    - [Max pull up at 120 deg]()
+    - [Max 20mm pull]()
+    - [DSI at 200ms]()
+    - [Speed pull up @60%]()
+    - [Critical force]()
 - [Todo list]()
 
 # Test

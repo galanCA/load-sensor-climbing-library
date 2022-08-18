@@ -38,6 +38,7 @@ class LongEndurance:
 
     def get_max(self, BW=None):
         # Get the maximum force generated
+
         self.set_body_weight(BW)
         self.max_force = max(self.handData['Data'])
 
@@ -50,6 +51,7 @@ class LongEndurance:
     def dynamic_strength_index(self, BW=None):
         # It's the percentage of force that the user can generate
         # in 200ms
+
         rateOfDevelopment = 0.2 # ms
         self.set_body_weight(BW)
         closestIndex = np.abs(self.handData.index - rateOfDevelopment).argmin()
@@ -67,6 +69,7 @@ class LongEndurance:
         # Last 6 contracions in a 4 min test
         # One standard diviation cut-off was used 177.199
 
+        self.set_body_weight(BW)
         closestIndex = np.abs(self.handData.index - (self.handData.index[-1] - 60)).argmin()
         lastContractionData = self.handData.iloc[closestIndex:]
         lcForce = lastContractionData['Data'][ lastContractionData['Data'] != 0]
@@ -79,20 +82,17 @@ class LongEndurance:
         stdCutOff = meanLCF-stdLCF
         self.CF = np.mean(lcForce[lcForce >= stdCutOff])
 
-        if not BW is None:
-            self.CF_BW = self.CF / BW * 100
+        if self.BW is not None:
+            self.CF_BW = self.CF / self.BW * 100
             return self.CF, self.CF_BW
 
         return self.CF
 
-    def get_aerobic_capacity(self):
-        # Get the integral
-        # find the line
-        pass
-
     def get_anaerobic_capacity(self, BW=None):
         # Get critical force
-        if 'self.CF' in locals(): # Test this
+        self.set_body_weight(BW)
+
+        if hasattr(self, 'CF'):
             self.get_critical_force()
         
         # Using full
@@ -122,8 +122,8 @@ class LongEndurance:
             PE_critical_impulse = integrate.trapz(critical_force['Data'], x=critical_force.index)
             self.anaerobic_capacity = PE_impulse - PE_critical_impulse
 
-        if not BW is None:
-            self.anaerobic_capacity_BW = self.anaerobic_capacity / BW
+        if self.BW is not None:
+            self.anaerobic_capacity_BW = self.anaerobic_capacity / self.BW
             return self.anaerobic_capacity, self.anaerobic_capacity_BW
         
         return self.anaerobic_capacity
@@ -131,7 +131,7 @@ class LongEndurance:
     def plot(self):
         labelSize = 18
         # Get critical force
-        if not 'self.CF' in locals():
+        if hasattr(self, 'CF'):
             self.get_critical_force()
         g = sns.relplot(data=self.handData, kind='line', legend=False)
         g.set_xlabels("Time [sec]", fontsize=labelSize)
